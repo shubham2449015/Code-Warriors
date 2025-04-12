@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Know Criminal | Legal Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type=text] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Know Criminal</h1>
+<p>Enter a person's name to check if any criminal record exists.</p>
+
+<input type="text" id="searchInput" placeholder="Enter Name">
+<button onclick="searchCriminal()">Search</button>
+
+<div id="result"></div>
+
+<script>
+function searchCriminal() {
+    let name = document.getElementById("searchInput").value.trim();
+    if(name === '') {
+        alert("Please enter a name.");
+        return;
+    }
+
+    fetch(`search.php?name=${encodeURIComponent(name)}`)
+    .then(response => response.json())
+    .then(data => {
+        let resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";
+
+        if(data.status === "error") {
+            resultDiv.innerHTML = `<p style="color:red;">${data.message}</p>`;
+        } else if(data.records.length === 0) {
+            resultDiv.innerHTML = `<p>No criminal record found for <strong>${name}</strong>.</p>`;
+        } else {
+            let output = `<h3>Records Found:</h3>`;
+            data.records.forEach(record => {
+                output += `
+                    <div style="border:1px solid #ddd; padding:10px; margin-bottom:10px;">
+                        <p><strong>Name:</strong> ${record.name}</p>
+                        <p><strong>Crime:</strong> ${record.crime}</p>
+                        <p><strong>Date:</strong> ${record.date}</p>
+                        <p><strong>Status:</strong> ${record.status}</p>
+                    </div>
+                `;
+            });
+            resultDiv.innerHTML = output;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        document.getElementById("result").innerHTML = "<p style='color:red;'>An error occurred while searching.</p>";
+    });
+}
+</script>
+
+</body>
+</html>
